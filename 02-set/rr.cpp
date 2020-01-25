@@ -124,7 +124,7 @@ void find_vertex(int from , int to, const std::vector< edge_t >& res, const std:
 {
         for (const auto&[f, t]: input){
                 if (res[f].komp_ == from && res[t].komp_ == to) { 
-                        std::cout << from << " " << to; 
+                        std::cout << f << " " << t; 
                         return;
                 }
         }
