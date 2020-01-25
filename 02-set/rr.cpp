@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <utility> 
 #include <unordered_set>
@@ -5,6 +6,8 @@
 #include <limits>
 
 const int UNDEFINED = -1 ;
+const std::string S_INVALID = "S_INVALID";
+const std::string S_VALID = "S_VALID";
 
 struct edge_t
 {
@@ -17,7 +20,8 @@ struct edge_t
 
 struct condensed_graph_t{
         condensed_graph_t(std::vector< edge_t> field, int component_count):
-                cg_(component_count) {
+        cg_(component_count) 
+        {
                 for (int i = 0 ; i < component_count ; i++) { 
                         cg_[i].index_ = i ;
                 }
@@ -25,15 +29,41 @@ struct condensed_graph_t{
                 for (const auto& e : field) { 
                         auto& component = cg_[e.komp_];
                         for (const auto& next : e.neighbors_) { 
-                                if (field[next].komp_ != component.index_ ){
-                                        component.neighbors_.push_back(field[next].komp_);
+                                auto& neig =  cg_[field[next].komp_];
+                                if (neig.index_ != component.index_ ){
+                                        component.neighbors_.push_back(neig.index_);
+                                        neig.neighbors_rev_.push_back(component.index_);
                                 }
                         }
                 }
+
+                for (const auto& c: cg_){
+                        if (c.neighbors_.size() == 0 && c.neighbors_rev_.size() == 0 ){
+                                is_forest_ = true ; 
+                                break; 
+                        }
+                        if (c.neighbors_.size() == 0 && c.neighbors_rev_.size() != 0 ){
+                                source_c_ ++ ;
+                                source_index_ = c.index_;
+                                continue;
+                        }
+                        if (c.neighbors_.size() != 0 && c.neighbors_rev_.size() == 0 ) { 
+                                junction_c_ ++ ;
+                                junction_index_ = c.index_;
+                                continue;
+                        }
+                }           
+                
+                
         }
 
-
+        int junction_c_ = 0 ; 
+        int junction_index_ = UNDEFINED;
+        int source_c_ = 0;
+        int source_index_ = UNDEFINED;
         std::vector< edge_t > cg_ ;
+        bool is_forest_ = false;
+        
 };
 
 
@@ -88,6 +118,40 @@ private:
         int C_n = 0 ; 
 };
 
+void find_vertex(int from , int to, const std::vector< edge_t >& res, const std::vector<std::pair<int, int > >&input)
+{
+        for (const auto&[f, t]: input_){
+                if (res[f].komp_ == from && res[t].komp_ == to) { 
+                        std::cout << from << " " << to; 
+                        return;
+                }
+        }
+        std::cout << S_INVALID ;    
+}
+
+void find_answer(const condensed_graph_t& cg, const std::vector< edge_t>& res, const std::vector<std::pair<int, int > >&input)
+{
+        static case_counter = 1;
+        std::cout << "Case "<< case_counter<<": ";
+
+
+        if (cg.is_forest_) { 
+                std::cout << S_INVALID ;  
+        } else if (1 == cg.cg_.size()){
+                 std::cout << S_VALID;
+        } else if (2 == cg.cg_.size()) {
+                if (cg.cg_[cg.source_index_].neighbors_.size()  < 2) {
+                        std::cout << S_INVALID;
+                } else {
+                        find_vertex(cg.source_index_, cg.junction_index_, res, input);
+                }
+        } else if ( cg.cg_.size() > 2 && cg.junction_c_ == 1 && cg.source_c_ == 1 ) {
+                find_vertex(cg.source_index_, cg.junction_index_, res, input);
+        } 
+            
+        std::cout << std::endl; 
+        case_counter++;
+}
 
 int main()
 {
@@ -98,6 +162,7 @@ int main()
                         break;
                 }
                 std::vector<edge_t > field(n);
+                std::vector<std::pair<int, int > > input;
                 
                 for (int i = 0 ; i < n ; i++){
                         field[i].index_ = i ; 
@@ -108,11 +173,15 @@ int main()
                         std::cin >> from >> to ;
                         field[from].neighbors_.push_back(to);
                         field[to].neighbors_rev_.push_back(from);
+                        input.push_back(std::make_pair(from, to));
                 }
                 auto cf  = componentfinder(field);
                 auto res = cf.solve() ;
-                condensed_graph_t(res,cf.get_comp_count());
+                auto cg = condensed_graph_t(res,cf.get_comp_count());
 
+                find_answer(cg, res, input);
+                
+                
         }
 }
 
