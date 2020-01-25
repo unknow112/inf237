@@ -6,8 +6,8 @@
 #include <limits>
 
 const int UNDEFINED = -1 ;
-const std::string S_INVALID = "S_INVALID";
-const std::string S_VALID = "S_VALID";
+const std::string S_INVALID = "invalid";
+const std::string S_VALID = "valid";
 
 struct edge_t
 {
@@ -39,15 +39,15 @@ struct condensed_graph_t{
 
                 for (const auto& c: cg_){
                         if (c.neighbors_.size() == 0 && c.neighbors_rev_.size() == 0 ){
-                                is_forest_ = true ; 
+                                might_be_forest_ = true ; 
                                 break; 
                         }
-                        if (c.neighbors_.size() == 0 && c.neighbors_rev_.size() != 0 ){
+                        if (c.neighbors_.size() > 0 && c.neighbors_rev_.size() == 0 ){
                                 source_c_ ++ ;
                                 source_index_ = c.index_;
                                 continue;
                         }
-                        if (c.neighbors_.size() != 0 && c.neighbors_rev_.size() == 0 ) { 
+                        if (c.neighbors_.size() == 0 && c.neighbors_rev_.size() > 0 ) { 
                                 junction_c_ ++ ;
                                 junction_index_ = c.index_;
                                 continue;
@@ -56,13 +56,15 @@ struct condensed_graph_t{
                 
                 
         }
+	bool is_forest() const  { return cg_.size() > 1 && might_be_forest_ ; } 
 
         int junction_c_ = 0 ; 
         int junction_index_ = UNDEFINED;
         int source_c_ = 0;
         int source_index_ = UNDEFINED;
         std::vector< edge_t > cg_ ;
-        bool is_forest_ = false;
+private:
+        bool might_be_forest_= false;
         
 };
 
@@ -120,7 +122,7 @@ private:
 
 void find_vertex(int from , int to, const std::vector< edge_t >& res, const std::vector<std::pair<int, int > >&input)
 {
-        for (const auto&[f, t]: input_){
+        for (const auto&[f, t]: input){
                 if (res[f].komp_ == from && res[t].komp_ == to) { 
                         std::cout << from << " " << to; 
                         return;
@@ -131,11 +133,11 @@ void find_vertex(int from , int to, const std::vector< edge_t >& res, const std:
 
 void find_answer(const condensed_graph_t& cg, const std::vector< edge_t>& res, const std::vector<std::pair<int, int > >&input)
 {
-        static case_counter = 1;
+        static int case_counter = 1;
         std::cout << "Case "<< case_counter<<": ";
 
 
-        if (cg.is_forest_) { 
+        if (cg.is_forest()) { 
                 std::cout << S_INVALID ;  
         } else if (1 == cg.cg_.size()){
                  std::cout << S_VALID;
@@ -147,7 +149,9 @@ void find_answer(const condensed_graph_t& cg, const std::vector< edge_t>& res, c
                 }
         } else if ( cg.cg_.size() > 2 && cg.junction_c_ == 1 && cg.source_c_ == 1 ) {
                 find_vertex(cg.source_index_, cg.junction_index_, res, input);
-        } 
+        } else {
+		std::cout << S_INVALID ; 
+	}
             
         std::cout << std::endl; 
         case_counter++;
