@@ -127,13 +127,14 @@ int bfs_coup(std::vector<color_t> init_state, const propagation_tree_t& pt)
 		} else { 
 			continue;
 		}
+
+		if (is_coup_done(world_state.state_)) {
+			return world_state.steps_count;
+		}			
 		
 		for (std::size_t index = 0 ; index < world_state.state_.size() ; index ++ ) { 
 			auto new_state = pt.switchup(world_state, index);
 
-			if (is_coup_done(new_state.state_)) {
-				return new_state.steps_count;
-			}			
 
 			bfs_queue.push(new_state);
 		}	
