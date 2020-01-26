@@ -173,7 +173,7 @@ int main(){
                 if (H == 0 || W == 0){
                         return 0;
                 }
-                memset(visited,0,2500);
+                memset(visited,0,2500 * sizeof(int));
                 visited_c = 0; 
                 is_cyclic = 0;
                 exits_found = 0;   
