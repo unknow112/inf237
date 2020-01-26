@@ -1,0 +1,4 @@
+1. Turtle Master - https://uib.kattis.com/submissions/5207208
+2. A Different Problem - https://uib.kattis.com/submissions/5206862
+3. Guess the Number - https://uib.kattis.com/submissions/5206932
+4. Oddities - https://uib.kattis.com/submissions/5206859

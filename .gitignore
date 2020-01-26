@@ -4,5 +4,6 @@
 !*.cpp
 !*.c
 !*.in*
-*.swp
 !*.py
+!*.txt
+*.swp
