@@ -1,4 +1,5 @@
 #include <cassert>
+#include <algorithm>
 #include <queue>
 #include <numeric>
 #include <unordered_set>
@@ -8,13 +9,9 @@
 #include <vector>
 
 
-
-enum color_t
-{
-	ORANGE = 0, 
-	PURPLE = 1 
-};
-
+using color_t = bool;
+const color_t C_ORANGE = false;
+const color_t C_PURPLE = true;
 
 
 struct bfs_state_t
@@ -30,14 +27,7 @@ struct bfs_state_t
 struct bfs_state_hash_f
 {
 	std::size_t operator()(const bfs_state_t& s) const noexcept {
-		auto h = std::hash<color_t>() ;
-		std::size_t result = h(s.to_color_);
-
-		for (const auto c: s.state_){
-			result = result ^ ( h(c) << 1 ) ;
-		}
-		return result;
-
+		return (std::hash<color_t>()(s.to_color_) << 1) ^ std::hash<std::vector<color_t > >()(s.state_);
 	}
 };
 
@@ -70,16 +60,7 @@ public:
 	auto switchup(bfs_state_t world, int switch_index) const { 
 		world.steps_count ++; 
 		swap( world.state_, world.to_color_, switch_index);
-		switch (world.to_color_) { 
-		case color_t::ORANGE:	
-			world.to_color_ = color_t::PURPLE;
-			break;
-		case color_t::PURPLE:
-			world.to_color_ = color_t::ORANGE;
-			break;
-		default:
-			assert(! "whoa buddy whatcha doing here");
-		}
+		world.to_color_ = !world.to_color_;
 		return world;
 	}
 
@@ -88,11 +69,10 @@ public:
 private:
 	void swap(std::vector<color_t >& state, color_t to_color, int index) const {
 		const auto& node_friends = tree_[index];
-		auto& current_state = state[index]; 
-		if (current_state == to_color) {
+		if (state[index] == to_color) {
 			return ; 
 		} else { 
-			current_state = to_color;
+			state[index] = to_color;
 		}
 
 		for (const auto& pal : node_friends){
@@ -105,18 +85,21 @@ private:
 
 
 bool is_coup_done(const std::vector<color_t >& s) 
-{
-	auto acc = std::accumulate(s.begin(), s.end(), std::size_t(0) , [](std::size_t a, color_t b){ return a + std::size_t(b); });
-	return  std::size_t(0) == acc || s.size() == acc ;
-		
+{	
+	if (s.size() == 1) {
+		return true;
+	} else { 
+		const auto first = *s.begin();
+		return std::all_of( s.begin() + 1 , s.end() , [first](bool a){ return a == first; }  ) ; 
+	}
 }
 
 int bfs_coup(std::vector<color_t> init_state, const propagation_tree_t& pt) 
 {
 	std::queue<bfs_state_t> bfs_queue;
 	std::unordered_set<bfs_state_t, bfs_state_hash_f, bfs_state_equals_f> checked_states;
-	bfs_queue.push(bfs_state_t(init_state, color_t::ORANGE));
-	bfs_queue.push(bfs_state_t(init_state, color_t::PURPLE));
+	bfs_queue.push(bfs_state_t(init_state, C_ORANGE));
+	bfs_queue.push(bfs_state_t(init_state, C_PURPLE));
 	
 	while (! bfs_queue.empty() ){
 		auto world_state = bfs_queue.front();
