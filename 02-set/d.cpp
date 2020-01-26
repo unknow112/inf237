@@ -105,11 +105,6 @@ int bfs_coup(std::vector<color_t> init_state, const propagation_tree_t& pt)
 		auto world_state = bfs_queue.front();
 		bfs_queue.pop();
 
-		if ( checked_states.end() == checked_states.find(world_state)   ) { 
-			checked_states.insert(world_state);
-		} else { 
-			continue;
-		}
 
 		if (is_coup_done(world_state.state_)) {
 			return world_state.steps_count;
@@ -118,10 +113,13 @@ int bfs_coup(std::vector<color_t> init_state, const propagation_tree_t& pt)
 		for (std::size_t index = 0 ; index < world_state.state_.size() ; index ++ ) { 
 			auto new_state = pt.switchup(world_state, index);
 
-
-			bfs_queue.push(new_state);
+			if ( checked_states.end() == checked_states.find(new_state)   ) { 
+				checked_states.insert(new_state);
+				bfs_queue.push(new_state);
+			} else { 
+				continue;
+			}
 		}	
-
 	}
 
 	assert(! "whoa buddy whatcha doing here?");
