@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iterator>
 #include <algorithm>
 #include <set>
 #include <unordered_map>
@@ -53,7 +54,7 @@ const auto &solve(const std::vector<item_t> & costs, int price)
 		if ( (*item).price_ == price ) {
 			if (no_solution){
 				no_solution = false;
-				prices_combinations_.insert({price, solution_t({(*item).id_})});
+				prices_combinations_[price] = solution_t({(*item).id_});
 				continue;
 			} else {
 				prices_combinations_[price].is_unique_ = false;
@@ -69,7 +70,7 @@ const auto &solve(const std::vector<item_t> & costs, int price)
 					no_solution = false ; 
 					auto solution = rest;
 					solution.answer_.insert((*item).id_);
-					prices_combinations_.insert({price, solution});
+					prices_combinations_[price] = solution;
 					if (solution.is_unique_) {
 				       		continue;
 					} else { 
@@ -89,7 +90,8 @@ const auto &solve(const std::vector<item_t> & costs, int price)
 }
 
 
-
+const std::string S_IMPOSSIBLE = "Impossible";
+const std::string S_AMBIGOUS = "Ambiguous";
 
 int main()
 {
@@ -116,8 +118,21 @@ int main()
         for (int i = 0 ; i < m ; i ++ ) { 
                 int P;
                 std::cin >> P ;
-                solve(costs, P); 
+                const auto& result = solve(costs, P); 
+		if (! result.is_unique_ ) { 
+			std::cout << S_AMBIGOUS << "\n";
+			continue;
+		} 
+		if ( result.answer_.empty() ) {
+			std::cout << S_IMPOSSIBLE << "\n";
+			continue;
+		} else { 
+			std::copy(result.answer_.begin(), result.answer_.end(), std::ostream_iterator<int>(std::cout, " "));
+			std::cout << "\n" ; 
+			continue;
+		}
         }
+
 
         
                
