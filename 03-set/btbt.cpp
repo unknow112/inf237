@@ -135,7 +135,8 @@ int main()
 		std::cout << S_OK << std::endl;
 		return 0;
 	} else {
-		std::cout << "UNHANDLED" << std::endl;
+		int bumptime = std::abs(B.pos_ - A.pos_  + A.t_);
+		std::cout << S_BAD << bumptime << std::endl;
 		return 0;
 	}
 	assert(!"Whoa dont go here");
