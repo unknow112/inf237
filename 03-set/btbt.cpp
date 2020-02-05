@@ -1,6 +1,6 @@
+#include <cassert>
 #include <iostream>
 #include <cmath>
-#include <cassert>
 #include <algorithm>
 #include <vector>
 #include <string>
@@ -16,13 +16,34 @@ const int MIN_DIFF = 5;
 
 struct car_t
 {
+	
 	explicit car_t(int pos):
 	       pos_(pos){}
+	
+	void update(int at) {
+		if (is_moving_){ 
+			pos_ += at - t_;	
+			t_ = at;	
+		} else { 
+			t_ = at; 
+		}
+	}
 
+	void startstop(){
+		is_moving_ = ! is_moving_;
+	}
+
+	int t_  = 0; 
 	int pos_ = -1;
 	bool is_moving_ = false;
 	std::vector<int> changes_ ; 
 };
+
+bool is_colision(const car_t&a, const car_t&b)
+{
+	assert ( a.t_ == a.t_ ) ; 
+	return std::abs(a.pos_ - b.pos_) < MIN_DIFF;
+}
 
 enum car_n
 {
@@ -58,98 +79,65 @@ int main()
 		B.changes_.push_back(x);
 	}
 
-
-
-	int t = 0;
 	
 	auto t_A = A.changes_.begin();
-	auto t_B= B.changes_.begin();
-	while ( t_A != A.changes_.end() && t_B != B.changes_.end()){
-		if  ( *t_A == *t_B  ) {
-			if (A.is_moving_){
-				A.pos_ += *t_A - t ;
-			} 
-			if (B.is_moving_) { 
-				B.pos_ += *t_B - t; 
-			}
-			B.is_moving_ = ! B.is_moving_;
-			A.is_moving_ = ! A.is_moving_;	
-			t = *t_A  ;
-			if (std::abs(A.pos_ - B.pos_) < MIN_DIFF) { 
-				std::cout << S_BAD << t;
-				return 0;
-			}
-			t_A ++;
-			t_B ++;
-		} else if ( *t_A < *t_B) { 
-			if (A.is_moving_){
-				A.pos_ += *t_A - t ;
-			} 
-			if (B.is_moving_) { 
-				B.pos_ += *t_B - t; 
-			}
-			t = *t_A;
-			A.is_moving_ = ! A.is_moving_;	
-			if (std::abs(A.pos_ - B.pos_) < MIN_DIFF) { 
-				std::cout << S_BAD << t;
-				return 0;
-			}
-			t_A ++;
-		
-		} else {
-			if (A.is_moving_){
-				A.pos_ += *t_B - t ;
-			} 
-			if (B.is_moving_) { 
-				B.pos_ += *t_B - t; 
-			}
-			t = *t_B;
-			A.is_moving_ = ! A.is_moving_;	
-			if (std::abs(A.pos_ - B.pos_) < MIN_DIFF) { 
-				std::cout << S_BAD << t;
-				return 0;
-			}
-			t_B ++;
-
+	auto t_B = B.changes_.begin();
+	while (true) {
+		if ( t_A == A.changes_.end() || t_B == B.changes_.end() ) {
+			break;
+		}
+		if ( *t_A == *t_B ){
+			A.update(*t_A);
+			B.update(*t_B);
+			A.startstop();
+			B.startstop();
+			t_A++ ; t_B++ ; 
+		} else if ( *t_A < *t_B ) {
+			A.update(*t_A);
+			A.startstop();
+			B.update(*t_A);
+			t_A++;
+		} else { 
+			A.update(*t_B);
+			B.update(*t_B);
+			B.startstop();
+			t_B++; 
 		}
 
-	}
-
-	auto& longer = A;
-	auto& shorter = B;
-	auto t_longer = t_A;
-	if (t_A == A.changes_.end()) {
-		std::swap(longer, shorter);
-		t_longer = t_B;
-	} 
-
-
-	for( ; t_longer != longer.changes_.end() ; t_longer++) { 
- 		if (shorter.is_moving_) {
-			shorter.pos_ += *t_longer - t ; 
-		}
- 		if (longer.is_moving_) {
-			longer.pos_ += *t_longer - t ; 
-		}
-		t = *t_longer; 
-		if (std::abs(shorter.pos_ - longer.pos_) < MIN_DIFF ){
-			std::cout << S_BAD  << t; 
+		if (is_colision(A,B)) {
+			std::cout << S_BAD << A.t_ << std::endl;	
 			return 0 ;
 		}
-		
-		longer.is_moving_ = ! longer.is_moving_;
+
 	}
-	if (A.is_moving_ == B.is_moving_){
-		std::cout << S_OK ; 
+	if (t_A == A.changes_.end() && t_B == B.changes_.end()){
+		std::cout << S_OK << std::endl;
 		return 0 ;
-	} else  {
-		if ( (A.is_moving_ && (A.pos_ > B.pos_)   ) || ( B.is_moving_ && B.pos_> A.pos_) ){
-			std::cout << S_OK ; 
-			return 0;
-		} else { 
-			std::cout << S_BAD << std::abs(A.pos_  - B.pos_) - MIN_DIFF - 1 + t ;
-			return 0;
+	}
+	// let the longer one be A 
+	if (t_A == A.changes_.end()){
+		std::swap(A,B);
+		std::swap(t_A, t_B);	
+	}	
+        for (; t_A != A.changes_.end() ; t_A++ ) { 
+		A.update(*t_A);
+		B.update(*t_A);
+		A.startstop();
+		if (is_colision(A,B)) {
+			std::cout << S_BAD << A.t_ << std::endl ;
+			return 0 ; 
 		}
 	}
+	if (A.is_moving_ == B.is_moving_) {
+		std::cout << S_OK << std::endl;
+		return 0 ; 
+	} else if (A.is_moving_ && A.pos_ > B.pos_ ) {
+		std::cout << S_OK << std::endl;
+		return 0;
+	} else {
+		std::cout << "UNHANDLED" << std::endl;
+		return 0;
+	}
+	assert(!"Whoa dont go here");
+	return 0 ;
 }
-
