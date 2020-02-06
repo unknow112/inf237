@@ -19,7 +19,7 @@ struct solution_t
 {
 	explicit solution_t(const std::multiset<int>& ans):
 		answer_(ans){}
-	
+
 	solution_t()
 	{}
 
@@ -30,7 +30,8 @@ struct solution_t
 
 //std::unordered_map<int, solution_t > prices_combinations_ ; 
 std::vector<solution_t > prices_combinations_; 
-
+bool is_item_for_one_ = false;
+int its_number_ = -1; 
 
 const auto &solve(const std::vector<item_t> & costs, int price)
 {
@@ -47,8 +48,15 @@ const auto &solve(const std::vector<item_t> & costs, int price)
                 [](const item_t& a, int P){ return a.price_ > P; }
         );
 
-	prices_combinations_[price].is_defined_ = true;  
+	prices_combinations_[price].is_defined_ = true; 
 	bool no_solution = true;
+        
+	if (is_item_for_one_){ 
+		no_solution = false; 
+		for (int i = 0 ; i < price ; i++) {
+			prices_combinations_[price].answer_.insert(its_number_); 
+		}	
+	}
 
         for (; item != costs.end() ; item++ ) { 
 		if ( (*item).price_ == price ) {
@@ -99,14 +107,20 @@ const std::string S_AMBIGOUS = "Ambiguous";
 
 int main()
 {
+
         int n;
         std::cin >> n;
-        
+	        
         std::vector<item_t> costs;
         costs.reserve(n);
         for (int i = 0 ; i < n ; i ++ ) {
                 int x;
                 std::cin >> x; 
+		if (x == 1) {
+			is_item_for_one_ = true;
+			its_number_ = i+1;
+			continue;
+		} 
                 costs.push_back(item_t(i+1, x));
         }
         
