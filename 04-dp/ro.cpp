@@ -23,21 +23,21 @@ struct solution_t
 	solution_t()
 	{}
 
+	bool is_defined_ = false; 
 	bool is_unique_ = true;
 	std::multiset<int > answer_ = {}; 
 };
 
-std::unordered_map<int, solution_t > prices_combinations_ ; 
-
+//std::unordered_map<int, solution_t > prices_combinations_ ; 
+std::vector<solution_t > prices_combinations_; 
 
 
 const auto &solve(const std::vector<item_t> & costs, int price)
 {
 	// ak uz takuto vahu mam v sete, tak zbytocne hladat, pretoze uz som ju skusil vsetkymi sposobmi vytvorit
 	assert(price > 0);
-	auto solved = prices_combinations_.find(price);
-	if (solved != prices_combinations_.end()) { 
-		return (*solved).second;
+	if (prices_combinations_[price].is_defined_){
+		return prices_combinations_[price];
 	}
 
         auto item = std::lower_bound(
@@ -47,7 +47,7 @@ const auto &solve(const std::vector<item_t> & costs, int price)
                 [](const item_t& a, int P){ return a.price_ > P; }
         );
 
-	prices_combinations_.insert({price,solution_t(std::multiset<int>())});
+	prices_combinations_[price].is_defined_ = true;  
 	bool no_solution = true;
 
         for (; item != costs.end() ; item++ ) { 
@@ -119,9 +119,16 @@ int main()
 
         int m;
 	std::cin >> m ;
+	std::vector<int> orders;
+	int ord_max = 0;
         for (int i = 0 ; i < m ; i ++ ) { 
                 int P;
                 std::cin >> P ;
+		orders.push_back(P);
+		ord_max = P > ord_max ? P : ord_max ;
+	}
+	prices_combinations_ = std::vector<solution_t>(ord_max + 1);
+	for (auto P: orders) { 
                 const auto& result = solve(costs, P); 
 		if (! result.is_unique_ ) { 
 			std::cout << S_AMBIGOUS << "\n";
