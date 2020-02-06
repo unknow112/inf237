@@ -65,22 +65,22 @@ const auto &solve(const std::vector<item_t> & costs, int price)
 			const auto &rest = solve(costs, price - (*item).price_);
 			if ( rest.answer_.empty() ) { 
 				continue;
-			} else {	
+			} else {
+				if (! rest.is_unique_ ) {
+				       	prices_combinations_[price] = rest;
+					return prices_combinations_[price];
+				}
 				const auto& old_solution = prices_combinations_[price];
 				auto new_solution = rest;
 				new_solution.answer_.insert((*item).id_);
+				if ( new_solution.answer_ == old_solution.answer_) {
+					continue;
+				}
 				if (no_solution) {
 					no_solution = false ; 
 					prices_combinations_[price] = new_solution;
-					if (new_solution.is_unique_) {
-				       		continue;
-					} else { 
-						return prices_combinations_[price];
-					}								
+					continue;
 				} else { 
-					if ( new_solution.answer_ == old_solution.answer_) {
-						continue;
-					}
 					prices_combinations_[price].is_unique_ = false;
 					return prices_combinations_[price];
 				}
