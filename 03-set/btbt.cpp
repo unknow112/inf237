@@ -134,8 +134,11 @@ int main()
 	} else if (A.is_moving_ && A.pos_ > B.pos_ ) {
 		std::cout << S_OK << std::endl;
 		return 0;
+	} else if (B.is_moving_ && B.pos_ > A.pos_ ) {
+		assert(!"hmmm");
+		return 0;
 	} else {
-		int bumptime = std::abs(B.pos_ - A.pos_  + A.t_);
+		int bumptime = A.t_ + std::abs(A.pos_ - B.pos_) - MIN_DIFF + 1;
 		std::cout << S_BAD << bumptime << std::endl;
 		return 0;
 	}
