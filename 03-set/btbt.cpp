@@ -110,10 +110,10 @@ int main()
 		}
 
 	}
-	if (t_A == A.changes_.end() && t_B == B.changes_.end()){
-		std::cout << S_OK << std::endl;
-		return 0 ;
-	}
+	//if (t_A == A.changes_.end() && t_B == B.changes_.end()){
+	//	std::cout << S_OK << std::endl;
+	//	return 0 ;
+	//}
 	// let the longer one be A 
 	if (t_A == A.changes_.end()){
 		std::swap(A,B);
@@ -135,7 +135,7 @@ int main()
 		std::cout << S_OK << std::endl;
 		return 0;
 	} else if (B.is_moving_ && B.pos_ > A.pos_ ) {
-		assert(!"hmmm");
+		std::cout << S_OK << std::endl;
 		return 0;
 	} else {
 		int bumptime = A.t_ + std::abs(A.pos_ - B.pos_) - MIN_DIFF + 1;
