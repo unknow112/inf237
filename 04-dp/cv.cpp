@@ -50,7 +50,21 @@ bool solve(const std::string& w)
 			return false;
 		}
 	}
-	
+
+	bool all = true;
+	for (std::size_t index = 0 ; index < w.size() ; index ++ ) { 
+		all = all && lookup(w.substr(index,1));
+		if (!all) {
+			break;
+		}
+	}
+
+	if (all){
+		(*new_elem).second = true;
+		return true;
+	} 
+
+
 	if ( lookup(w.substr(0,1)) && solve(w.substr(1,std::string::npos)) )   {
 		(*new_elem).second = true;
 		return true;
