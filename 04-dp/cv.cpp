@@ -15,22 +15,26 @@ const std::vector<std::string> PRFKY = { "ac", "ag", "al", "am", "ar", "as",
        	"rh", "rn", "ru", "s", "se", "sg", "sm", "sr", "ta", "tb", "tc", "te",
        	"th", "ti", "tl", "tm", "u", "v", "w", "xe", "y", "zn", "zr" 
 }; 
-auto lookup(const std::string& a) 
+auto lookup(const char* str, std::size_t len)
 { 
-	return std::binary_search(PRFKY.begin(),PRFKY.end(),a);
+	return std::binary_search(
+			PRFKY.begin(),
+			PRFKY.end(),
+			std::string(str, len)
+	);
 }
 
-std::unordered_map<std::string, bool> PARTIALS = {};
+std::unordered_map<const char *, bool> PARTIALS = {};
 
 
-bool solve(const std::string& w)
+bool solve(const char * w, std::size_t len)
 {
-	assert(w.size() > 0 );
+	assert(len > 0);
 
-	if (w.size() == 1){
-	       return lookup(w);	
-	} else if ( w.size() == 2 ) {
-		if (lookup(w)) { 
+	if (len == 1){
+	       return lookup(w, len);	
+	} else if ( len == 2 ) {
+		if (lookup(w, len)) { 
 			return true;
 		}
 	}
@@ -42,8 +46,8 @@ bool solve(const std::string& w)
 
 	auto [new_elem, status] = PARTIALS.insert({w, false});
 	assert(status);
-	if (w.size() == 2) { 
-		if ( solve(w.substr(0,1)) && solve(w.substr(1,1)) ) {
+	if (len == 2) { 
+		if ( lookup(w, 1) && lookup(w+1,1)){ 
 			(*new_elem).second = true;
 			return true;
 		} else { 
@@ -51,29 +55,17 @@ bool solve(const std::string& w)
 		}
 	}
 
-	bool all = true;
-	for (std::size_t index = 0 ; index < w.size() ; index ++ ) { 
-		all = all && lookup(w.substr(index,1));
-		if (!all) {
-			break;
-		}
-	}
 
-	if (all){
+	if ( lookup(w,2) && solve(w+2, len-2) ) {
 		(*new_elem).second = true;
 		return true;
-	} 
+	}
 
-
-	if ( lookup(w.substr(0,1)) && solve(w.substr(1,std::string::npos)) )   {
+	if ( lookup(w,1) && solve(w+1, len-1) ) {
 		(*new_elem).second = true;
 		return true;
 	}	
 	
-	if ( lookup(w.substr(0,2)) && solve(w.substr(2,std::string::npos)) ) { 
-		(*new_elem).second = true;
-		return true;
-	}
 	
 	return false; 
 }
@@ -86,11 +78,12 @@ int main()
 	for (int i = 0 ; i < c ; i++){
 		std::string input;
 		std::cin >> input;
-		if (solve(input)){
+		if (solve(input.c_str(), input.size())){
 			std::cout << "YES\n";
 		} else { 
 			std::cout << "NO\n";
 		}
+		PARTIALS = {}; 
 	}
 	return 0 ;
 
