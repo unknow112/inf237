@@ -45,17 +45,22 @@ int solve(const std::vector<edge_t> &m)
 {
 	std::unordered_set<int > singles ; 
 
+	int total_messages = 0; 
+
 	for(auto e = m.begin() ; e != m.end() ; e++ ) { 
 		if ((*e).is_baddie_) { 
+			total_messages--;
 			rev_dfs(m,singles, *e);
 		}
 	}
 
-	int total_messages = singles.size();
+	total_messages += singles.size();
 
 	for(auto e = m.begin() ; e != m.end() ; e++ ) { 
-		dfs(m, singles, *e); 
-		total_messages++; 
+		if ( singles.end() == singles.find((*e).id_ )) { 
+			dfs(m, singles, *e); 
+			total_messages++; 
+		}
 	}
 	return total_messages;
 }
