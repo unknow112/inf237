@@ -1,4 +1,5 @@
 #include <cassert>
+#include <algorithm>
 #include <vector>
 #include <unordered_set>
 #include <iostream> 
@@ -58,8 +59,22 @@ int solve(const std::vector<edge_t> &m)
 
 	for(auto e = m.begin() ; e != m.end() ; e++ ) { 
 		if ( singles.end() == singles.find((*e).id_ )) { 
-			dfs(m, singles, *e); 
 			total_messages++; 
+			dfs(m, singles, *e); 
+			for (auto preceedor = e ; true ; ){ 
+				auto succ  = std::find_if(
+					(*preceedor).neighbors_rev_.begin(),
+					(*preceedor).neighbors_rev_.end(),
+					[&singles](int a){ 
+						return singles.end() == singles.find(a);
+					}
+				);
+				if (succ == (*preceedor).neighbors_rev_.end()){
+					break;
+				}
+				dfs(m, singles, m[*succ]);
+				preceedor = m.begin() + (*succ); 
+			}
 		}
 	}
 	return total_messages;
