@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdint>
 #include <numeric>
 #include <functional>
 #include <iostream>
@@ -9,13 +10,13 @@ int sanitize_id(int id){
 	return id - 1; 
 }
 
-const int infinity_c = std::numeric_limits<int>::max();
+const uint64_t infinity_c = std::numeric_limits<uint64_t>::max();
 
 struct edge_t
 {
 	int a_;
 	int b_;
-	int cost_;
+	uint64_t cost_;
 };
 
 struct vertex_t
@@ -95,7 +96,8 @@ struct graph_t
 		}
 
 		for (int i = 0 ; i < m ; i ++ ) { 
-			int a, b, c;
+			int a, b;
+		        uint64_t c;
 			in >> a >> b >> c; 
 			a = sanitize_id(a);
 			b = sanitize_id(b);
@@ -133,7 +135,7 @@ bool edge_picker(const graph_t& g, int v_id, const edge_t& a , const edge_t& b)
 
 }
 
-int solve(graph_t &g) 
+uint64_t solve(graph_t &g) 
 { 
 	if (g.vs_.size() == 1 ) { 
 		return 0;
@@ -141,7 +143,7 @@ int solve(graph_t &g)
 
 	disjoint_set ds{g.vs_.size()};
 	
-	int total_cost = 0 ; 	
+	uint64_t total_cost = 0 ; 	
 
 	for (const auto& e: g.es_){
 		if  (ds.find(e.a_) == ds.find(e.b_)){
@@ -190,8 +192,8 @@ int solve(graph_t &g)
 			total_cost = std::accumulate(
 				g.es_.begin(),
 				g.es_.end(),
-				0,
-				[](int x, const edge_t& a){
+				uint64_t(0),
+				[](uint64_t x, const edge_t& a){
 					return x + a.cost_; 
 				}
 			);
