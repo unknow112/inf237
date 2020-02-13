@@ -30,11 +30,11 @@ struct vertex_t
 class disjoint_set
 {
 public:
-	explicit disjoint_set(std::size_t size)
+	explicit disjoint_set(const std::vector<vertex_t > & input)
 	{	
-		data_.reserve(size);
-		for (std::size_t index = 0 ; index < size ; index++) {
-			data_.push_back({int(index), int(index)});
+		data_.reserve(input.size());
+		for (std::size_t index = 0 ; index < input.size() ; index++) {
+			data_.push_back({int(index), int(index), input[index].is_rogue_ });
 		}
 	}
 
@@ -54,12 +54,34 @@ public:
 		}
 		set_root(find(a), data_[b]);
 	}
+
+	bool is_unified(){
+		auto first_it = std::find_if(
+			data_.begin(),
+			data_.end(),
+			[](dsi_t a ){
+				return ! a.ignore_; 
+			}
+		);
 		
+		if (first_it == data_.end()) {
+			return true; 
+		}
+		auto first_root = find((*first_it).id_) ; 
+		return std::all_of(
+			first_it,
+			data_.end(),
+			[first_root, this](dsi_t a){
+				return a.ignore_ || find(a.id_) == first_root;
+			}
+		);
+	}
 
 private:
 	struct dsi_t{
 		int root_ ;
 		int id_ ; 
+		bool ignore_ ; 
 	};
 
 	void set_root(int root_id, dsi_t& to_obj){
@@ -141,7 +163,7 @@ uint64_t solve(graph_t &g)
 		return 0;
 	}
 
-	disjoint_set ds{g.vs_.size()};
+	disjoint_set ds{g.vs_};
 	
 	uint64_t total_cost = 0 ; 	
 
@@ -154,6 +176,11 @@ uint64_t solve(graph_t &g)
 		}
  		ds.merge(e.a_, e.b_);
 		total_cost += e.cost_;
+	}
+
+	// ta ak mas viac ako jeden set zle je kamko
+	if (! ds.is_unified()) { 
+		return infinity_c;
 	}
 
 	
