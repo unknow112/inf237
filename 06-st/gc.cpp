@@ -1,4 +1,5 @@
 #include <cassert>
+#include <algorithm>
 #include <iostream>
 #include <vector> 
 
@@ -36,42 +37,76 @@ private:
 
 };
 
+struct num_meta_t
+{
+	int most_left_pos_ ;
+	std::vector<int>::iterator l_iter_;
+
+	int most_right_pos_ ;
+	std::vector<int>::iterator r_iter_;
+
+}; 
+using intarr_t = std::vector<int> ;
+
+struct foo_t 
+{
+
+	explicit foo_t(int s):
+		ord_(s),
+		pos_(s+1)
+	{}
+
+	intarr_t ord_;	
+	intarr_t pos_;
+};
 
 int main() { 
 	int S ; 
 	std::cin >> S ; 
 
-	auto a = std::vector<int> (S); 
+
+	auto a = foo_t(S); 
 	for (int i = 0 ; i < S ; i++) { 
-		std::cin >> a[i]; 
+		std::cin >> a.ord_[i]; 
+                a.pos_[  a.ord_[i] ] = i;
 	}
 
-	auto b = std::vector<int> (S); 
-        auto b_pos = std::vector<int> (S +1);
+	auto b = foo_t(S); 
 	for (int i = 0 ; i < S ; i++) { 
-		std::cin >> b[i]; 
-                b_pos[  b[i] ] = i;
+		std::cin >> b.ord_[i]; 
+                b.pos_[  b.ord_[i] ] = i;
 	}
 
-	auto c = std::vector<int> (S); 
-        auto c_pos = std::vector<int> (S +1); 
+	auto c = foo_t(S); 
 	for (int i = 0 ; i < S ; i++) { 
-		std::cin >> c[i]; 
-                c_pos[  c[i] ] = i;
+		std::cin >> c.ord_[i]; 
+                c.pos_[  c.ord_[i] ] = i;
 	}
 
-        auto perm = perm_gen_t(a) ; 
-        decltype(a.begin()) x, y ; 
-        perm.first(x,y);
-        int count = 0 ; 
-        while (x != a.end() && y != a.end()) {  
-                if ( b_pos[*x] < b_pos[*y] && c_pos[*x] < c_pos[*y] ) { 
-			count++;
-		}
- 		perm.next(x,y); 
-        }
+	int count = 0 ;
 
+	for (int cyslo = 1 ; cyslo  <= S ; cyslo ++ ) { 
+		auto& leftmost_vec = *std::max(
+			{ &a, &b, &c } , 
+			[cyslo](const foo_t* x, const foo_t *y ){
+				return (*x).pos_[cyslo] < (*y).pos_[cyslo];
+		       	} 
+		);
+		for (   auto druhe = leftmost_vec.ord_.begin() + leftmost_vec.pos_[cyslo] + 1;
+		  	druhe != leftmost_vec.ord_.end() ;
+			druhe ++   	  
+		) {
+			if (	a.pos_[cyslo] < a.pos_[*druhe]
+			     && b.pos_[cyslo] < b.pos_[*druhe] 
+			     && c.pos_[cyslo] < c.pos_[*druhe] ) { 
+				count++;
+			}
+		}	
+		
+	}
         std::cout << count << std::endl;
         return 0 ;
+	
+	
 }
              
