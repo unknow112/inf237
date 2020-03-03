@@ -83,7 +83,7 @@ int main()
 		int m, r;
 		std::cin >> m >> r ;
 		auto set = disjoint_set_t(m);
-		for (int j=0; i < r ; j++){
+		for (int j=0; j < r ; j++){
 			int a, b;
 			std::cin >> a>> b;
 			set.merge(a,b);
