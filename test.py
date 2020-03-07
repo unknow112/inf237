@@ -7,31 +7,6 @@ import importlib.util
 
 PROCESS_TIMEOUT = 5
 
-def formatinput(a,b,c,s):
-        return bytes('\n'.join([
-            str(s),
-            ' '.join(map(str,a)),
-            ' '.join(map(str,b)),
-            ' '.join(map(str,c))
-        ]), encoding='ASCII')
-
-
-def just_gen_all(maxl, minl=2):
-        for S in range(minl, maxl+1):
-                items = range(1,S+1)
-                for A in itertools.permutations(items):
-                        for B in itertools.permutations(items):
-                                for C in itertools.permutations(items):
-                                        yield formatinput(A,B,C,S)
-
-    # pre kazdu len 2...maxl:     maxl! * maxl! * maxl! * S 
-    # pre kazdu z moznych permutiacii zober prvu  .... maxl! * maxl! * maxl!
-    # pre kazdu z moznych permutacii zober druhu  .... maxl! * maxl!
-    # pre kazdu z moznych permutacii zober tretiu ... maxl!
-
-
-
-
 def get_output(input_bytearr, compiled_file):
 
         p = subprocess.Popen(
@@ -52,12 +27,11 @@ def get_output(input_bytearr, compiled_file):
 
         return out
 
-def rangegen():
-        for t in range(20,200001,10):
-                f = t-10
-                for _ in range(100):
-                        yield f,t
-
+def fnamegen():
+        template = 'gc.in.%d'
+        while True:
+                for num in range(10):
+                        yield template % num 
 
 def main():
         INPUT_GENERATOR_LIB = argv[1]
@@ -75,21 +49,18 @@ def main():
         gen = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(gen)
         #gen.generate_input
-
-        #for i in just_gen_all(10, START_FROM):
-        #while True:
-        for mins, maxs in rangegen(): 
-                #i = bytes(gen.generate_input(randint(mins,maxs)), encoding='ASCII')
-                i = bytes(gen.generate_input(randint(2,MAXS)), encoding='ASCII')
+        fname = fnamegen()
+        while True:
+                S = randint(2,MAXS)
+                i = bytes(gen.generate_input(S), encoding='ASCII')
                 ref = get_output(i, REFERENCE_SOLUTION).strip()
                 test = get_output(i, TESTED_SOLUTION).strip()
                 if ref != test:
-                        print('-- found mismatch on this input:')
-                        print(str(i, encoding='ASCII'))
-                        break
-        #except KeyboardInterrupt:
-        #        print('--youve interrupted it at this input:')
-        #        print(str(i, encoding='ASCII'))
+                        print(S)
+                        with open(next(fname), 'w') as f:
+                                f.write('-- found mismatch on this input:\n')
+                                f.write(str(i, encoding='ASCII'))
+                        MAXS = S - 1 
 
 if __name__ == '__main__':
         main()
