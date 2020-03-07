@@ -35,7 +35,7 @@ def just_gen_all(maxl, minl=2):
 def get_output(input_bytearr, compiled_file):
 
         p = subprocess.Popen(
-                compiled_file, 
+                compiled_file.split(), 
                 stdin=subprocess.PIPE, 
                 stdout=subprocess.PIPE
         )
@@ -52,35 +52,44 @@ def get_output(input_bytearr, compiled_file):
 
         return out
 
+def rangegen():
+        for t in range(20,200001,10):
+                f = t-10
+                for _ in range(100):
+                        yield f,t
 
 
 def main():
-        REFERENCE_SOLUTION = argv[1]
-        TESTED_SOLUTION = argv[2]
+        INPUT_GENERATOR_LIB = argv[1]
+        REFERENCE_SOLUTION = argv[2]
+        TESTED_SOLUTION = argv[3]
         try:
-                START_FROM = int(argv[3])
+                MAXS = int(argv[4])
         except IndexError:
-                START_FROM = 2 
+                MAXS = 200000 
 
-        #spec = importlib.util.spec_from_file_location(
-        #        INPUT_GENERATOR_LIB.split('/')[-1],
-        #        INPUT_GENERATOR_LIB
-        #)
-        #gen = importlib.util.module_from_spec(spec)
-        #spec.loader.exec_module(gen)
+        spec = importlib.util.spec_from_file_location(
+                INPUT_GENERATOR_LIB.split('/')[-1],
+                INPUT_GENERATOR_LIB
+        )
+        gen = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gen)
         #gen.generate_input
 
-        try:
-                for i in just_gen_all(10, START_FROM):
-                        ref = get_output(i, REFERENCE_SOLUTION).strip()
-                        test = get_output(i, TESTED_SOLUTION).strip()
-                        if ref != test:
-                                print('-- found mismatch on this input:')
-                                print(str(i, encoding='ASCII'))
-                                break
-        except KeyboardInterrupt:
-                print('--youve interrupted it at this input:')
-                print(str(i, encoding='ASCII'))
+        #for i in just_gen_all(10, START_FROM):
+        #while True:
+        for mins, maxs in rangegen(): 
+                #i = bytes(gen.generate_input(randint(mins,maxs)), encoding='ASCII')
+                i = bytes(gen.generate_input(randint(2,MAXS)), encoding='ASCII')
+                ref = get_output(i, REFERENCE_SOLUTION).strip()
+                test = get_output(i, TESTED_SOLUTION).strip()
+                if ref != test:
+                        print('-- found mismatch on this input:')
+                        print(str(i, encoding='ASCII'))
+                        break
+        #except KeyboardInterrupt:
+        #        print('--youve interrupted it at this input:')
+        #        print(str(i, encoding='ASCII'))
 
 if __name__ == '__main__':
         main()
