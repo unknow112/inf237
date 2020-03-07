@@ -19,7 +19,7 @@ public:
 	}
 
 
-	int64_t query(int ordn){
+	int64_t query(int64_t ordn){
 		int64_t res = 0 ; 
 		if (ordn > 0) {
 			res = sum_(0, ordn -1, 0 , size_ -1, 0 ); 
@@ -37,7 +37,7 @@ private:
 		std::size_t index = 0; 
 		while (! (from == to && to == pos)) {
 			update_indexes.push_back(index);
-			int half = int((to - from) / 2 ) ;
+			int64_t half = int64_t((to - from) / 2 ) ;
 		  	if ( from + half < pos ) {
 			        index = 2*index + 2; 
 				from = from + half +1 ;
@@ -64,7 +64,7 @@ private:
 			return 0;
 		}
 		if (from <= bto || to >= bfrom ) {
-			int half = int((bto - bfrom) / 2 ) ;
+			int64_t half = int64_t((bto - bfrom) / 2 ) ;
 			return   sum_(from, to, bfrom, bfrom + half,  2*store_index +1) 
 			       + sum_(from, to, bfrom + half +1, bto, 2*store_index +2);	
 		}
@@ -79,7 +79,7 @@ private:
 			return ;
 		}
 			
-		int half = int((to - from) / 2 ) ;
+		int64_t half = int64_t((to - from) / 2 ) ;
 		init_(from,  from + half, 2*index +1 ) ;
 		init_(from + half +1, to, 2*index +2 ) ; 
 
@@ -97,28 +97,27 @@ private:
 
 
 
-using intarr_t = std::vector<int> ;
 
 struct foo_t 
 {
 
-	explicit foo_t(int s):
+	explicit foo_t(int64_t s):
 		ord_(s),
 		pos_(s+1)
 	{}
 
-	intarr_t ord_;	
-	intarr_t pos_;
+	std::vector<int64_t> ord_;	
+	std::vector<int64_t> pos_;
 };
 
-int64_t get_result(int64_t AB, int64_t AC, int64_t BC, int S)
+int64_t get_result(int64_t AB, int64_t AC, int64_t BC, int64_t S)
 {
 	const int64_t T = (S*(S-1))/2;
 	return (AB+AC+BC-T)/2;
 }
 
 
-int64_t pairs(const foo_t& main, const foo_t& sec, int S)
+int64_t pairs(const foo_t& main, const foo_t& sec, int64_t S)
 {
 	int64_t res = 0 ; 
 
@@ -134,24 +133,24 @@ int64_t pairs(const foo_t& main, const foo_t& sec, int S)
 }
 
 int main() { 
-	int S ; 
+	int64_t S ; 
 	std::cin >> S ; 
 
 
 	auto a = foo_t(S); 
-	for (int i = 0 ; i < S ; i++) { 
+	for (int64_t i = 0 ; i < S ; i++) { 
 		std::cin >> a.ord_[i]; 
                 a.pos_[  a.ord_[i] ] = i;
 	}
 
 	auto b = foo_t(S); 
-	for (int i = 0 ; i < S ; i++) { 
+	for (int64_t i = 0 ; i < S ; i++) { 
 		std::cin >> b.ord_[i]; 
                 b.pos_[  b.ord_[i] ] = i;
 	}
 
 	auto c = foo_t(S); 
-	for (int i = 0 ; i < S ; i++) { 
+	for (int64_t i = 0 ; i < S ; i++) { 
 		std::cin >> c.ord_[i]; 
                 c.pos_[  c.ord_[i] ] = i;
 	}
