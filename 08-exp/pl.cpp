@@ -15,26 +15,42 @@ struct block_t {
 
 bool overlap(const block_t &a, const block_t &b)
 {
-	if (a.id == b.id){ 
+	if (a.id == b.id) {
 		return false;
 	}
+	return !( a.x + a.w <= b.x
+		  || b.x + b.w <= a.x
+		  || a.y + a.h <= b.y
+		  || b.y + b.h <= a.y
+		);
 
-	bool x_overlap = false;
-	if (a.x < b.x) { 
-		x_overlap = b.x - a.x < a.w;
-	} else { 
-		x_overlap = a.x - b.x < b.w;
-	} 
-
-	bool y_overlap = false; 
-	if (a.y < b.y) { 
-		y_overlap = b.y - a.y < a.h;
-	} else { 
-		y_overlap = a.y - b.y < b.h;
-	}
-
-	return x_overlap && y_overlap;
 }
+
+//bool overlap(const block_t &a, const block_t &b)
+//{
+//	if (a.id == b.id){ 
+//		return false;
+//	}
+//
+//	bool x_overlap = false;
+//	if (a.x < b.x) { 
+//		x_overlap = b.x - a.x < a.w;
+//	} else { 
+//		x_overlap = a.x - b.x < b.w;
+//	} 
+//
+//	bool y_overlap = false; 
+//	if (a.y < b.y) { 
+//		y_overlap = b.y - a.y < a.h;
+//	} else { 
+//		y_overlap = a.y - b.y < b.h;
+//	}
+//
+//	return x_overlap && y_overlap;
+//}
+
+
+
 
 int solve(std::vector<block_t>& articles)
 {
