@@ -11,6 +11,7 @@ struct edge_t
 {
 	int id;
 	uint16_t neigmap = 0 ; 
+	bool locked = false; 
 };
 
 using color_map_t = std::array<uint16_t, 12>;
@@ -21,6 +22,9 @@ int find(const std::vector<edge_t>& g, int index, int presult )
         if (std::size_t(index) >= g.size()) {
                 return presult;
         }
+	if (g[index].locked){
+		return find(g, index+1, presult);
+	}
 	int result = 12;
 	for (int i = 1 ; i <= 11 ; i ++ ){  
 		if (!( color_map[i] & g[index].neigmap )) { 
@@ -41,8 +45,16 @@ int solve(std::vector<edge_t>& g)
 	if (g.size() == 1) { 
 		return 1; 
 	}
+	for (uint32_t i = g[0].neigmap , j = 0 ; i > 0 ; i >>=1, j++) {
+		if (i&1){
+			color_map[2] |= (1<<j);
+			g[j].locked = true;
+			break;
+		}
+	}
+	g[0].locked = true; 
 	color_map[1] |= (1<<0);
-	return find(g,1,1); 
+	return find(g,1,2); 
 }
 
 int main()
