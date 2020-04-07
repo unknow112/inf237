@@ -50,6 +50,23 @@ bool overlap(const block_t &a, const block_t &b)
 //}
 
 
+int find(const std::vector<block_t>& ar, uint32_t comb, int index, int presult )
+{
+	if (std::size_t(index) >= ar.size()) {
+		return presult;
+	}
+	if (ar[index].overlaps & comb) { 
+		return find(ar, comb, index+1, presult);
+	} else {
+		return std::max( 
+			find(ar, uint32_t(comb | (1<<(index))), 
+			     index+1, presult+ar[index].area),
+			find(ar, comb, index+1, presult)
+		);	
+	}
+
+
+}
 
 
 int solve(std::vector<block_t>& articles)
@@ -62,27 +79,7 @@ int solve(std::vector<block_t>& articles)
 		       }
 	       }
 	}	       
-	int total = int(articles.size());
-	uint32_t max = (1<<total) ; 
-	int result = 0 ; 
-	for (uint32_t perm = 0 ; perm < max ; perm++) {
-		int perm_area = 0 ; 
-		for (uint32_t i = perm, j = 0 ; i > 0 ; i >>=1, j++) {
-			if (!(i & 1)){
-				continue ; 
-			}	
-		       if  (!(articles[j].overlaps & perm)) { 
-				perm_area += articles[j].area;
-		       } else {
-				perm_area = 0 ; 
-				break;
-			}
-		}
-		if (perm_area > result) {
-			result = perm_area;
-		}
-	}
-	return result;
+	return find(articles, uint32_t(0), 0, 0);
 }
 
 int main()
@@ -98,7 +95,7 @@ int main()
 			articles.push_back(tmp);
 		}
 		int res= solve(articles);
-		std::cout << res << '\n' ;
+		std::cout << res << '\n';
 	}
 
 }
