@@ -27,6 +27,9 @@ int find(const std::vector<edge_t>& g, int index, int presult )
 	}
 	int result = 12;
 	for (int i = 1 ; i <= 11 ; i ++ ){  
+		if (i > result){
+			break;
+		}
 		if (!( color_map[i] & g[index].neigmap )) { 
 			color_map[i] |= 1<<index;
 			int partial = find(g, index+1, std::max(presult,i) );
