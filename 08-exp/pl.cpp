@@ -63,14 +63,17 @@ int solve(std::vector<block_t>& articles)
 	       }
 	}	       
 	int total = int(articles.size());
-	uint32_t max = (1<<(total+1)) ; 
+	uint32_t max = (1<<total) ; 
 	int result = 0 ; 
 	for (uint32_t perm = 0 ; perm < max ; perm++) {
 		int perm_area = 0 ; 
 		for (uint32_t i = perm, j = 0 ; i > 0 ; i >>=1, j++) {
-			if ((i & 1) && 0 == (articles[j].overlaps & perm)) { 
+			if (!(i & 1)){
+				continue ; 
+			}	
+		       if  (!(articles[j].overlaps & perm)) { 
 				perm_area += articles[j].area;
-			} else {
+		       } else {
 				perm_area = 0 ; 
 				break;
 			}
