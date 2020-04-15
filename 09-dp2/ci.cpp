@@ -56,7 +56,7 @@ int64_t solve(std::vector<edge_t> &net, std::vector<bool> &b)
 			[&net](int64_t acc, int id){
 				return add(
 				  acc,
-		   		  std::min(net[id].in,net[id].out_up)
+		   		  net[id].out_up
 				); 
 			}
 		);
