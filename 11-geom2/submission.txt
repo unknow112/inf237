@@ -1,0 +1,2 @@
+1. Closest Pair https://uib.kattis.com/submissions/5680973
+2. Robot Protection https://uib.kattis.com/submissions/5671637
