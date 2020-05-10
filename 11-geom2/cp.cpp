@@ -9,7 +9,6 @@
 struct point_t {
 	double x;
 	double y;
-	int id;
 };
 
 double euclid(point_t a, point_t b)
@@ -98,8 +97,6 @@ auto solve(point_t_v_i first, point_t_v_i last)
 			corner_res = std::min(corner_res, result_t(*l, *r));
 		}	
 	}
-	std::sort(left_edge, right_edge, ord_by_x); 
-
 
 	return std::min( sub_res, corner_res);
 }
@@ -115,7 +112,7 @@ int main()
 		for (int i = 0 ; i < n ; i ++ ) {
 			double x,y;
 			std::cin >> x >> y; 
-			ps.push_back({x,y,i});
+			ps.push_back({x,y});
 		}
 		std::sort( ps.begin(), ps.end(), ord_by_x);
 		auto res = solve(ps.begin(), ps.end());
