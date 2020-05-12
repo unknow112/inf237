@@ -7,10 +7,6 @@
 
 struct node_t
 {
-	node_t(std::size_t id):
-		id(id) 
-	{}
-	std::size_t id;
 	int first_word_id = -1 ;
 	int count = 0;
 	std::array<int, 26> next = {-1, -1, -1, -1, 
@@ -34,7 +30,7 @@ std::vector<dict_node_t> DICT;
 
 int add(std::size_t word_id , const char *s, int parent)
 {
-	if ('\0' != *s && SI[parent].first_word_id == -1 ) {
+	if ( SI[parent].first_word_id == -1 && '\0' != *s ) {
 		SI[parent].first_word_id  = word_id ; 
 	} 
 	if('\0' == *s ){
@@ -45,7 +41,7 @@ int add(std::size_t word_id , const char *s, int parent)
 	char my_index = *s - 'a';
 	if (SI[parent].next[my_index] == -1){
 		auto newid = SI.size();
-		SI.push_back({newid});
+		SI.push_back({});
 		SI[parent].next[my_index] = newid;
 	}
 	return add(word_id, s+1, SI[parent].next[my_index]);
@@ -71,8 +67,13 @@ std::string query(const std::string &in)
 		       }
 		}
 		if (trie_pos == -1 ){
+			auto old_length = result.size();
 			result.append(in, first_tab);
-			auto it = std::remove(result.begin(),result.end(),'#');
+			auto it = std::remove(
+				result.begin() + old_length,
+				result.end(),
+				'#'
+			);
 			result.erase(it, result.end());
 			return result;
 		}
@@ -97,7 +98,7 @@ std::string query(const std::string &in)
 void build() 
 {
 	SI.reserve(500000);
-	SI.push_back({0});
+	SI.push_back({});
 	std::sort(DICT.begin(), DICT.end());
 	for (std::size_t i = 0 ; i<DICT.size() ; i++) {
 	       DICT[i].trie_index = add(i, DICT[i].word.c_str(), 0);
