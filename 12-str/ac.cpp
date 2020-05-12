@@ -21,16 +21,24 @@ struct node_t
 
 auto SI = std::vector<node_t>();
 
-std::vector<std::string> DICT; 
+struct dict_node_t
+{
+	std::string word;
+	int trie_index = -1;
+	bool operator<(const dict_node_t&o )const{
+		return word< o.word; 
+	}
+};
+std::vector<dict_node_t> DICT; 
 
 
-void add(std::size_t word_id , const char *s, int parent)
+int add(std::size_t word_id , const char *s, int parent)
 {
 	if ('\0' != *s && SI[parent].first_word_id == -1 ) {
 		SI[parent].first_word_id  = word_id ; 
 	} 
 	if('\0' == *s ){
-		return ;
+		return parent ;
 	} else { 
 		SI[parent].count++;
 	}
@@ -40,7 +48,7 @@ void add(std::size_t word_id , const char *s, int parent)
 		SI.push_back({newid});
 		SI[parent].next[my_index] = newid;
 	}
-	add(word_id, s+1, SI[parent].next[my_index]);
+	return add(word_id, s+1, SI[parent].next[my_index]);
 }	
 
 std::string query(const std::string &in)
@@ -73,45 +81,17 @@ std::string query(const std::string &in)
 		    ((last_tab == std::string::npos) ? in.size() : last_tab)  
 		    - first_tab; 
 
-		auto old_res_len = result.size() ; 
 		if (SI[trie_pos].first_word_id > -1){
-			result = DICT[
+			const auto & match =  DICT[
 				SI[trie_pos].first_word_id
 				+ ((tab_count-1)  % SI[trie_pos].count)
 			];
-		}
-		for(std::size_t i = old_res_len ; i < result.size(); i++ ) {
-		       char index = result[i] - 'a'; 
-		       trie_pos = SI[trie_pos].next[index];
+			result = match.word;
+			trie_pos = match.trie_index;
 		}
 		in_pos = last_tab; 
 	}
 	return result;
-}
-
-void draw(int index)
-{
-	if (index < 0) { 
-		return;
-	}
-	fprintf(stderr, ",%d,%d,%d}",
-		       index,	
-				SI[index].count,
-				SI[index].first_word_id
-				);
-	for (int i = 0 ; i < 26 ; i ++ ) {
-		if (SI[index].next[i] > -1) {	
-			std::fprintf(
-				stderr, 
-				" -> {%c",
-				char(i+'a')
-			);
-			draw(SI[index].next[i]);
-			std::fprintf(stderr, "\n");  
-		}
-	}	
-
-
 }
 
 void build() 
@@ -120,14 +100,7 @@ void build()
 	SI.push_back({0});
 	std::sort(DICT.begin(), DICT.end());
 	for (std::size_t i = 0 ; i<DICT.size() ; i++) {
-	       add(i, DICT[i].c_str(), 0);
-	}
-	draw(0);
-       	int i = 0 ; 	
-	for (const auto &s: DICT){
-		
-		fprintf(stderr, "%3d: %s\n", i, s.c_str());
-		i++;
+	       DICT[i].trie_index = add(i, DICT[i].word.c_str(), 0);
 	}
 }
 
@@ -140,7 +113,7 @@ int main()
 	std::string str; 
 	for (int i = 0 ; i < nd ; i ++ ) { 
 		std::cin >> str;
-		DICT.push_back(str); 
+		DICT.push_back({str, -1}); 
 	}
 	build(); 
 	int nq ;	
