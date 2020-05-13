@@ -1,0 +1,2 @@
+1. Base-2 Palindromes https://uib.kattis.com/submissions/5691471
+2. Thermostat Trouble https://uib.kattis.com/submissions/5688641

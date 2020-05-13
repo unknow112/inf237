@@ -1,0 +1,2 @@
+1. Auto Completion https://uib.kattis.com/submissions/5686005
+2. Bing It On https://uib.kattis.com/submissions/5682678
