@@ -1,2 +1,0 @@
-1. Guessing Camels https://uib.kattis.com/submissions/5436335
-2. Supercomputer https://uib.kattis.com/submissions/5378023

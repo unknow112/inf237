@@ -1,2 +1,0 @@
-1. Counting Triangles https://uib.kattis.com/submissions/5418449
-2. Jabuke https://uib.kattis.com/submissions/5418261
