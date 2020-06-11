@@ -1,10 +1,10 @@
 *
 !README.md
 !.gitignore
-!*/
 !*.cpp
 !*.c
-!*.in*
+!*.in.*
+!*.out.*
 !*.py
 !*.txt
 *.swp
