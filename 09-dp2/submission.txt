@@ -1,2 +1,0 @@
-1. The Citrus Intern - https://uib.kattis.com/submissions/5582968
-* Google Hash Code wildcard
